@@ -1,20 +1,24 @@
+#define SENSOR_PIN A0  // Broche du capteur TCRT5000
+#define BUZZER_PIN 8   // Broche du buzzer
+#define THRESHOLD 500  // Ajuster selon les tests (valeur basse = objet détecté)
+
 void setup() {
-  Serial.begin(9600); // Initialiser la communication série à 9600 bauds
+  pinMode(BUZZER_PIN, OUTPUT);
+  Serial.begin(9600);
 }
 
 void loop() {
-  // Simuler l'état des cabines et de la zone d'attente
-  static bool toggle = false;
-  toggle = !toggle; // Alterner entre deux états
+  int sensorValue = analogRead(SENSOR_PIN);
 
-  // Créer un JSON avec des données simulées
-  Serial.print("{\"cabine1\": \"");
-  Serial.print(toggle ? "occupe" : "libre");
-  Serial.print("\", \"cabine2\": \"");
-  Serial.print(toggle ? "libre" : "occupe");
-  Serial.print("\", \"attente\": \"");
-  Serial.print(toggle ? "occupe" : "libre");
-  Serial.println("\"}");
+  // Debug: afficher la valeur du capteur
+  Serial.print("Valeur TCRT5000: ");
+  Serial.println(sensorValue);
 
-  delay(5000); // Envoyer toutes les 5 secondes
+  if (sensorValue < THRESHOLD) { // Objet détecté (valeur basse pour TCRT5000)
+    digitalWrite(BUZZER_PIN, HIGH); // Activer le buzzer
+    delay(1000);                    // Buzzer 1 seconde
+    digitalWrite(BUZZER_PIN, LOW);
+    Serial.println("ALERTE_INTRUSION");
+    delay(2000); // Pause pour éviter les répétitions rapides
+  }
 }
